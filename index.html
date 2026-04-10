@@ -1,0 +1,1102 @@
+﻿<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProMenu - Professional Restaurant System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --dark: #0f172a;
+            --darker: #020617;
+            --card: #1e293b;
+            --glass: rgba(30, 41, 59, 0.7);
+        }
+        
+        * { 
+            font-family: 'Vazirmatn', 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, #1a1f3a 100%);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Professional Glassmorphism */
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .glass-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        }
+        
+        /* Premium Cards */
+        .premium-card {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 2rem;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        
+        .premium-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.1) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .premium-card:hover::before { opacity: 1; }
+        
+        .premium-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 30px 60px rgba(99, 102, 241, 0.3), 0 0 40px rgba(236, 72, 153, 0.2);
+            border-color: rgba(99, 102, 241, 0.3);
+        }
+        
+        .premium-card img {
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
+        .premium-card:hover img {
+            transform: scale(1.2);
+        }
+        
+        /* Gradient Text */
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        /* Animated Background */
+        .bg-animated {
+            background: linear-gradient(-45deg, #0f172a, #1e1b4b, #312e81, #0f172a);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
+        }
+        
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        /* Floating Elements */
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(5deg); }
+        }
+        
+        .float-anim { animation: float 6s ease-in-out infinite; }
+        
+        /* Glowing Effects */
+        .glow {
+            box-shadow: 0 0 20px rgba(99, 102, 241, 0.5), 0 0 40px rgba(236, 72, 153, 0.3);
+        }
+        
+        .glow-text {
+            text-shadow: 0 0 20px rgba(99, 102, 241, 0.8);
+        }
+        
+        /* Side Cart */
+        .side-cart {
+            position: fixed;
+            top: 0;
+            right: -450px;
+            width: 450px;
+            height: 100vh;
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98) 0%, rgba(30, 41, 59, 0.98) 100%);
+            backdrop-filter: blur(30px);
+            z-index: 1000;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border-left: 1px solid rgba(99, 102, 241, 0.2);
+            box-shadow: -20px 0 60px rgba(0, 0, 0, 0.5);
+        }
+        
+        .side-cart.open { right: 0; }
+        
+        .cart-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            z-index: 999;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .cart-overlay.open { opacity: 1; visibility: visible; }
+        
+        /* Cart Toggle Button */
+        .cart-toggle {
+            position: fixed;
+            top: 50%;
+            right: 0;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            padding: 1rem 0.5rem;
+            border-radius: 1rem 0 0 1rem;
+            cursor: pointer;
+            z-index: 998;
+            box-shadow: -5px 0 20px rgba(99, 102, 241, 0.5);
+            transition: all 0.3s;
+        }
+        
+        .cart-toggle:hover { padding-right: 1rem; }
+        
+        /* Status Timeline */
+        .status-timeline {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .status-dot {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            position: relative;
+            transition: all 0.3s;
+        }
+        
+        .status-dot.active {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            box-shadow: 0 0 15px rgba(99, 102, 241, 0.8);
+        }
+        
+        .status-dot.completed {
+            background: #10b981;
+        }
+        
+        .status-line {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+        
+        .status-line-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #6366f1 0%, #ec4899 100%);
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        
+        /* Language Selector */
+        .lang-btn {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            background: rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            font-size: 0.875rem;
+        }
+        
+        .lang-btn:hover, .lang-btn.active {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            border-color: transparent;
+            transform: scale(1.05);
+        }
+        
+        /* Table Management */
+        .table-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 1rem;
+        }
+        
+        .table-card {
+            aspect-ratio: 1;
+            border-radius: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .table-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        .table-card:hover::before { opacity: 1; }
+        
+        .table-card.available { 
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(16, 185, 129, 0.1) 100%);
+            border: 2px solid rgba(16, 185, 129, 0.5);
+        }
+        
+        .table-card.occupied { 
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(245, 158, 11, 0.1) 100%);
+            border: 2px solid rgba(245, 158, 11, 0.5);
+        }
+        
+        .table-card.reserved { 
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(239, 68, 68, 0.1) 100%);
+            border: 2px solid rgba(239, 68, 68, 0.5);
+        }
+        
+        /* QR Code Container */
+        .qr-container {
+            background: white;
+            padding: 1rem;
+            border-radius: 1rem;
+            display: inline-block;
+        }
+        
+        /* Admin Panel Link */
+        .admin-link {
+            position: fixed;
+            bottom: 2rem;
+            left: 2rem;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2) 0%, rgba(236, 72, 153, 0.2) 100%);
+            backdrop-filter: blur(10px);
+            padding: 1rem 1.5rem;
+            border-radius: 2rem;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 100;
+            transition: all 0.3s;
+        }
+        
+        .admin-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+        
+        /* Date/Time Display */
+        .datetime-display {
+            font-variant-numeric: tabular-nums;
+            letter-spacing: 0.05em;
+        }
+        
+        /* Scrollable Orders */
+        .orders-scroll {
+            max-height: calc(100vh - 300px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(99, 102, 241, 0.5) transparent;
+        }
+        
+        .orders-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+        
+        .orders-scroll::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        
+        .orders-scroll::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 3px;
+        }
+        
+        /* Notification Badge */
+        .notif-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: bold;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        /* Report Cards */
+        .report-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border-left: 4px solid;
+        }
+        
+        .report-card.daily { border-color: #6366f1; }
+        .report-card.weekly { border-color: #ec4899; }
+        .report-card.monthly { border-color: #f59e0b; }
+        
+        /* Print Styles */
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; color: black; }
+        }
+        
+        /* Mobile Optimizations */
+        @media (max-width: 768px) {
+            .side-cart { width: 100%; right: -100%; }
+            .table-grid { grid-template-columns: repeat(3, 1fr); }
+        }
+        
+        /* Loading Animation */
+        .loader {
+            width: 50px;
+            height: 50px;
+            border: 3px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #6366f1;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Category Pills New Style */
+        .cat-pill {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 2rem;
+            padding: 0.75rem 1.5rem;
+            transition: all 0.3s;
+            white-space: nowrap;
+        }
+        
+        .cat-pill:hover, .cat-pill.active {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            border-color: transparent;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.4);
+        }
+        
+        /* Edit/Delete Buttons */
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .action-btn.edit {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+        
+        .action-btn.delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .action-btn:hover { transform: scale(1.1); }
+    </style>
+</head>
+<body class="bg-animated">
+    <!-- Language Selector -->
+    <div class="fixed top-20 left-4 z-50 flex gap-2 no-print">
+        <button class="lang-btn active" onclick="changeLang('ku')" data-lang="ku">KU</button>
+        <button class="lang-btn" onclick="changeLang('ar')" data-lang="ar">AR</button>
+        <button class="lang-btn" onclick="changeLang('en')" data-lang="en">EN</button>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-panel sticky top-0 z-50 p-4 border-b border-white/10">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-2xl flex items-center justify-center text-white font-black text-2xl float-anim shadow-lg shadow-indigo-500/30">
+                    P
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-tight">
+                        <span class="gradient-text glow-text">ProMenu</span>
+                    </h1>
+                    <p class="text-xs opacity-60" data-translate="tagline">سیستەمی بەڕێوەبردنی رێستۆران</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden md:flex items-center gap-2 text-sm opacity-70">
+                    <i class="far fa-clock"></i>
+                    <span id="live-clock" class="datetime-display">--:--:--</span>
+                </div>
+                <button id="table-btn" class="glass-card px-4 py-2 rounded-xl text-sm font-bold hover:bg-white/10 transition" onclick="showTableManager()">
+                    <i class="fas fa-chair mr-2"></i>
+                    <span data-translate="tables">میزەکان</span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="p-4 max-w-7xl mx-auto pb-32">
+        <!-- Table Info Banner -->
+        <div id="table-banner" class="hidden glass-panel p-6 rounded-3xl mb-8 border border-indigo-500/30 glow">
+            <div class="flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-16 h-16 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-2xl flex items-center justify-center">
+                        <i class="fas fa-qrcode text-2xl"></i>
+                    </div>
+                    <div>
+                        <p class="text-sm opacity-70" data-translate="current_table">میزی ئێستا</p>
+                        <h2 class="text-3xl font-black gradient-text">مێز #<span id="current-table-num">0</span></h2>
+                    </div>
+                </div>
+                <div class="text-right">
+                    <p class="text-sm opacity-70" data-translate="scan_qr">سکان بکە بۆ داواکردن</p>
+                    <div id="table-qr" class="qr-container mt-2"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Category Filter -->
+        <div class="mb-8">
+            <h2 class="text-xl font-bold mb-4 flex items-center gap-3">
+                <i class="fas fa-filter gradient-text"></i>
+                <span data-translate="categories">هاوپۆلەکان</span>
+            </h2>
+            <div id="category-list" class="flex gap-3 overflow-x-auto pb-2 no-scrollbar">
+                <button class="cat-pill active" data-category="all" onclick="filterCategory('all')">
+                    <i class="fas fa-th-large mr-2"></i>
+                    <span data-translate="all">هەموو</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Grid -->
+        <h2 class="text-3xl font-bold mb-6 flex items-center gap-3">
+            <i class="fas fa-utensils gradient-text float-anim"></i>
+            <span data-translate="menu">لیستی خواردن</span>
+        </h2>
+        <div id="menu-grid" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            <!-- Menu items loaded here -->
+        </div>
+    </main>
+
+    <!-- Side Cart Toggle -->
+    <div class="cart-toggle no-print" onclick="toggleSideCart()">
+        <div class="relative">
+            <i class="fas fa-shopping-basket text-xl"></i>
+            <span id="side-cart-count" class="notif-badge">0</span>
+        </div>
+    </div>
+
+    <!-- Cart Overlay -->
+    <div class="cart-overlay" onclick="toggleSideCart()"></div>
+
+    <!-- Side Cart Panel -->
+    <div id="side-cart" class="side-cart">
+        <div class="h-full flex flex-col p-6">
+            <div class="flex justify-between items-center mb-6 pb-4 border-b border-white/10">
+                <h3 class="text-2xl font-black flex items-center gap-3">
+                    <i class="fas fa-shopping-cart gradient-text"></i>
+                    <span data-translate="your_order">داواکاریەکەت</span>
+                </h3>
+                <button onclick="toggleSideCart()" class="w-10 h-10 glass-card rounded-full flex items-center justify-center hover:bg-white/20 transition">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+
+            <!-- Order Status Timeline -->
+            <div id="order-timeline" class="hidden status-timeline mb-4">
+                <div class="flex flex-col items-center">
+                    <div class="status-dot active" id="dot-pending"></div>
+                    <span class="text-[10px] mt-1 text-indigo-400" data-translate="pending">چاوەڕوانی</span>
+                </div>
+                <div class="status-line"><div class="status-line-fill" id="line-pending"></div></div>
+                <div class="flex flex-col items-center">
+                    <div class="status-dot" id="dot-preparing"></div>
+                    <span class="text-[10px] mt-1 text-white/50" data-translate="preparing">ئامادەکردن</span>
+                </div>
+                <div class="status-line"><div class="status-line-fill" id="line-preparing"></div></div>
+                <div class="flex flex-col items-center">
+                    <div class="status-dot" id="dot-ready"></div>
+                    <span class="text-[10px] mt-1 text-white/50" data-translate="ready">ئامادەیە</span>
+                </div>
+                <div class="status-line"><div class="status-line-fill" id="line-ready"></div></div>
+                <div class="flex flex-col items-center">
+                    <div class="status-dot" id="dot-done"></div>
+                    <span class="text-[10px] mt-1 text-white/50" data-translate="done">تەواو</span>
+                </div>
+            </div>
+            <p id="order-status-msg" class="text-center text-sm font-bold text-indigo-400 mb-4 hidden"></p>
+
+            <!-- Cart Items -->
+            <div id="cart-items-container" class="flex-1 overflow-y-auto space-y-4 mb-4">
+                <!-- Cart items here -->
+            </div>
+
+            <!-- Cart Footer -->
+            <div class="border-t border-white/10 pt-4">
+                <div class="flex justify-between items-center mb-4">
+                    <span class="text-lg opacity-70" data-translate="total">کۆی گشتی</span>
+                    <span id="cart-total" class="text-3xl font-black gradient-text">0 IQD</span>
+                </div>
+                <button id="checkout-btn" onclick="submitOrder()" class="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white py-4 rounded-2xl font-black text-lg hover:shadow-xl hover:shadow-indigo-500/40 transition transform hover:scale-[1.02]">
+                    <i class="fas fa-paper-plane mr-2"></i>
+                    <span data-translate="submit_order">ناردنی داواکاری</span>
+                </button>
+                <button onclick="clearCart()" class="w-full mt-3 py-3 text-red-400 text-sm font-bold hover:bg-red-500/10 rounded-2xl transition">
+                    <i class="fas fa-trash-alt mr-2"></i>
+                    <span data-translate="clear">پاککردنەوە</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Link -->
+    <a href="admin.html" class="admin-link no-print" onclick="return checkAdminAccess()">
+        <i class="fas fa-cog mr-2"></i>
+        <span data-translate="admin_panel">پانێڵی بەڕێوەبەر</span>
+    </a>
+
+    <!-- Table Manager Modal -->
+    <div id="table-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-4xl rounded-[3rem] p-8 max-h-[90vh] overflow-y-auto">
+            <div class="flex justify-between items-center mb-8">
+                <h2 class="text-3xl font-black gradient-text">
+                    <i class="fas fa-chair mr-3"></i>
+                    <span data-translate="table_management">بەڕێوەبردنی میزەکان</span>
+                </h2>
+                <button onclick="closeTableManager()" class="w-12 h-12 glass-card rounded-full text-2xl hover:bg-white/20 transition">&times;</button>
+            </div>
+            <div id="tables-grid" class="table-grid mb-8">
+                <!-- Tables generated here -->
+            </div>
+            <div class="flex gap-4 justify-center">
+                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-green-500/50 border border-green-500"></div><span class="text-sm">Available</span></div>
+                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-amber-500/50 border border-amber-500"></div><span class="text-sm">Occupied</span></div>
+                <div class="flex items-center gap-2"><div class="w-4 h-4 rounded bg-red-500/50 border border-red-500"></div><span class="text-sm">Reserved</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, increment, deleteDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqLDfIknIeZNa04kAtievxXspRfRReXuk",
+            authDomain: "resturant-79473.firebaseapp.com",
+            projectId: "resturant-79473",
+            storageBucket: "resturant-79473.firebasestorage.app",
+            messagingSenderId: "680937011860",
+            appId: "1:680937011860:web:4ef965b4ac24b0e3461281"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Enable persistence
+        setPersistence(auth, browserLocalPersistence);
+
+        // Global State
+        let cart = JSON.parse(localStorage.getItem("promenu_cart")) || {};
+        let currentLang = localStorage.getItem("promenu_lang") || "ku";
+        let currentTable = localStorage.getItem("promenu_table") || null;
+        let currentCategory = "all";
+        let currentOrderId = null;
+        let tables = [];
+
+        // Translations
+        const translations = {
+            ku: {
+                tagline: "سیستەمی بەڕێوەبردنی رێستۆران",
+                tables: "میزەکان",
+                current_table: "میزی ئێستا",
+                scan_qr: "سکان بکە بۆ داواکردن",
+                categories: "هاوپۆلەکان",
+                all: "هەموو",
+                menu: "لیستی خواردن",
+                your_order: "داواکاریەکەت",
+                pending: "چاوەڕوانی",
+                preparing: "ئامادەکردن",
+                ready: "ئامادەیە",
+                done: "تەواو",
+                total: "کۆی گشتی",
+                submit_order: "ناردنی داواکاری",
+                clear: "پاککردنەوە",
+                admin_panel: "پانێڵی بەڕێوەبەر",
+                table_management: "بەڕێوەبردنی میزەکان",
+                add_to_cart: "زیادکردن",
+                quantity: "دانە",
+                order_received: "داواکاری وەرگیرا!",
+                order_status: "باری داواکاری",
+                login: "چوونەژوورەوە",
+                email: "ئیمەیڵ",
+                password: "وشەی نهێنی",
+                close: "داخستن",
+                available: "بەردەست",
+                occupied: "داگیراو",
+                reserved: "پارێزراو"
+            },
+            ar: {
+                tagline: "نظام إدارة المطعم",
+                tables: "الطاولات",
+                current_table: "الطاولة الحالية",
+                scan_qr: "امسح للطلب",
+                categories: "التصنيفات",
+                all: "الكل",
+                menu: "قائمة الطعام",
+                your_order: "طلبك",
+                pending: "معلق",
+                preparing: "قيد التحضير",
+                ready: "جاهز",
+                done: "مكتمل",
+                total: "المجموع",
+                submit_order: "إرسال الطلب",
+                clear: "مسح",
+                admin_panel: "لوحة الإدارة",
+                table_management: "إدارة الطاولات",
+                add_to_cart: "أضف إلى السلة",
+                quantity: "قطعة",
+                order_received: "تم استلام الطلب!",
+                order_status: "حالة الطلب",
+                login: "تسجيل الدخول",
+                email: "البريد الإلكتروني",
+                password: "كلمة المرور",
+                close: "إغلاق",
+                available: "متاح",
+                occupied: "مشغول",
+                reserved: "محجوز"
+            },
+            en: {
+                tagline: "Restaurant Management System",
+                tables: "Tables",
+                current_table: "Current Table",
+                scan_qr: "Scan to Order",
+                categories: "Categories",
+                all: "All",
+                menu: "Menu",
+                your_order: "Your Order",
+                pending: "Pending",
+                preparing: "Preparing",
+                ready: "Ready",
+                done: "Done",
+                total: "Total",
+                submit_order: "Submit Order",
+                clear: "Clear",
+                admin_panel: "Admin Panel",
+                table_management: "Table Management",
+                add_to_cart: "Add to Cart",
+                quantity: "pcs",
+                order_received: "Order Received!",
+                order_status: "Order Status",
+                login: "Login",
+                email: "Email",
+                password: "Password",
+                close: "Close",
+                available: "Available",
+                occupied: "Occupied",
+                reserved: "Reserved"
+            }
+        };
+
+        // Kurdish Food Data
+        const foodData = [
+            {name: {ku: "کەباب", ar: "كباب", en: "Kebab"}, price: 15000, category: "main", image: "https://images.unsplash.com/photo-1603360946369-dc9bb6258143?w=400", ordersCount: 45},
+            {name: {ku: "دۆڵمە", ar: "دولمة", en: "Dolma"}, price: 12000, category: "main", image: "https://images.unsplash.com/photo-1541529086526-db283c563270?w=400", ordersCount: 38},
+            {name: {ku: "بریانی", ar: "برياني", en: "Biryani"}, price: 18000, category: "main", image: "https://images.unsplash.com/photo-1563379091339-03b21ab4a4f8?w=400", ordersCount: 42},
+            {name: {ku: "کفتە", ar: "كفتة", en: "Kofta"}, price: 14000, category: "main", image: "https://images.unsplash.com/photo-1529042410759-befb1204b468?w=400", ordersCount: 35},
+            {name: {ku: "تەپسی", ar: "تبسي", en: "Tepsi"}, price: 13000, category: "main", image: "https://images.unsplash.com/photo-1574484284002-952d92456975?w=400", ordersCount: 28},
+            {name: {ku: "مەسگوف", ar: "مسكوف", en: "Masgouf"}, price: 25000, category: "main", image: "https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=400", ordersCount: 20},
+            {name: {ku: "برنجی سپی", ar: "أرز أبيض", en: "White Rice"}, price: 5000, category: "rice", image: "https://images.unsplash.com/photo-1586201375761-83865001e31c?w=400", ordersCount: 55},
+            {name: {ku: "بولگور", ar: "برغل", en: "Bulgur"}, price: 5500, category: "rice", image: "https://images.unsplash.com/photo-1604329760661-e71dc83f8f26?w=400", ordersCount: 18},
+            {name: {ku: "شۆربای عەدەس", ar: "شوربة عدس", en: "Lentil Soup"}, price: 4000, category: "soup", image: "https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400", ordersCount: 40},
+            {name: {ku: "بەیانی کوردی", ar: "فطور كردي", en: "Kurdish Breakfast"}, price: 12000, category: "breakfast", image: "https://images.unsplash.com/photo-1533089862017-5614ecb352ae?w=400", ordersCount: 33},
+            {name: {ku: "چای کوردی", ar: "شاي كردي", en: "Kurdish Tea"}, price: 1000, category: "drinks", image: "https://images.unsplash.com/photo-1544787219-7f47ccb76574?w=400", ordersCount: 100},
+            {name: {ku: "باقڵاوا", ar: "بقلاوة", en: "Baklava"}, price: 8000, category: "dessert", image: "https://images.unsplash.com/photo-1519676867240-f03562e64548?w=400", ordersCount: 48}
+        ];
+
+        const categories = {
+            all: {ku: "هەموو", ar: "الكل", en: "All"},
+            main: {ku: "سەرەکی", ar: "رئيسي", en: "Main"},
+            rice: {ku: "برنج", ar: "أرز", en: "Rice"},
+            soup: {ku: "شۆربا", ar: "شوربة", en: "Soup"},
+            breakfast: {ku: "بەیانی", ar: "فطور", en: "Breakfast"},
+            drinks: {ku: "خواردنەوە", ar: "مشروبات", en: "Drinks"},
+            dessert: {ku: "شیرینی", ar: "حلويات", en: "Dessert"}
+        };
+
+        // Initialize
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tableFromUrl = urlParams.get('table');
+            
+            if (tableFromUrl) {
+                currentTable = tableFromUrl;
+                localStorage.setItem("promenu_table", currentTable);
+            }
+            
+            if (currentTable) {
+                document.getElementById('table-banner').classList.remove('hidden');
+                document.getElementById('current-table-num').textContent = currentTable;
+                generateQRCode(currentTable);
+            }
+            
+            updateLanguage();
+            loadCategories();
+            loadMenu();
+            updateCartUI();
+            startClock();
+            initTables();
+        }
+
+        // Generate QR Code
+        function generateQRCode(table) {
+            const qrContainer = document.getElementById('table-qr');
+            qrContainer.innerHTML = '';
+            const url = `${window.location.origin}${window.location.pathname}?table=${table}`;
+            new QRCode(qrContainer, {
+                text: url,
+                width: 80,
+                height: 80,
+                colorDark: "#000000",
+                colorLight: "#ffffff",
+                correctLevel: QRCode.CorrectLevel.H
+            });
+        }
+
+        // Language Functions
+        window.changeLang = (lang) => {
+            currentLang = lang;
+            localStorage.setItem("promenu_lang", lang);
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+            updateLanguage();
+        };
+
+        function updateLanguage() {
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.dataset.translate;
+                if (translations[currentLang][key]) {
+                    el.textContent = translations[currentLang][key];
+                }
+            });
+            loadCategories();
+            loadMenu();
+            updateCartUI();
+        }
+
+        function t(key) {
+            return translations[currentLang][key] || key;
+        }
+
+        // Clock
+        function startClock() {
+            setInterval(() => {
+                const now = new Date();
+                document.getElementById('live-clock').textContent = now.toLocaleTimeString('en-US', {hour12: false});
+            }, 1000);
+        }
+
+        // Category Functions
+        function loadCategories() {
+            const container = document.getElementById('category-list');
+            container.innerHTML = `
+                <button class="cat-pill ${currentCategory === 'all' ? 'active' : ''}" data-category="all" onclick="filterCategory('all')">
+                    <i class="fas fa-th-large mr-2"></i>${categories.all[currentLang]}
+                </button>
+            `;
+            
+            Object.keys(categories).forEach(key => {
+                if (key !== 'all') {
+                    const btn = document.createElement('button');
+                    btn.className = `cat-pill ${currentCategory === key ? 'active' : ''}`;
+                    btn.dataset.category = key;
+                    btn.onclick = () => filterCategory(key);
+                    btn.innerHTML = `<i class="fas fa-utensils mr-2"></i>${categories[key][currentLang]}`;
+                    container.appendChild(btn);
+                }
+            });
+        }
+
+        window.filterCategory = (cat) => {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-pill').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.category === cat);
+            });
+            loadMenu();
+        };
+
+        // Menu Functions
+        function loadMenu() {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+            
+            const filtered = currentCategory === 'all' 
+                ? foodData 
+                : foodData.filter(item => item.category === currentCategory);
+            
+            filtered.forEach((item, index) => {
+                const isHot = item.ordersCount > 30;
+                const card = document.createElement('div');
+                card.className = 'premium-card';
+                card.innerHTML = `
+                    <div class="h-48 overflow-hidden relative">
+                        <img src="${item.image}" class="w-full h-full object-cover" alt="${item.name[currentLang]}">
+                        ${isHot ? `<div class="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-pink-500 text-white text-xs font-black px-3 py-1 rounded-full shadow-lg"><i class="fas fa-fire mr-1"></i>HOT</div>` : ''}
+                        <div class="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                            <span class="text-xs opacity-80">${categories[item.category][currentLang]}</span>
+                        </div>
+                    </div>
+                    <div class="p-5 relative z-10">
+                        <h3 class="font-bold text-lg mb-2">${item.name[currentLang]}</h3>
+                        <div class="flex justify-between items-center">
+                            <p class="text-2xl font-black gradient-text">${item.price.toLocaleString()} <span class="text-sm">IQD</span></p>
+                            <button onclick="addToCart('${index}', '${item.name.ku}', ${item.price})" class="bg-gradient-to-r from-indigo-500 to-pink-500 text-white px-4 py-2 rounded-xl font-bold hover:shadow-lg transition transform hover:scale-105">
+                                <i class="fas fa-plus mr-1"></i> ${t('add_to_cart')}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Cart Functions
+        window.addToCart = (id, name, price) => {
+            if (cart[id]) {
+                cart[id].qty++;
+            } else {
+                cart[id] = {name, price, qty: 1};
+            }
+            updateCartUI();
+            
+            // Show side cart briefly
+            const sideCart = document.getElementById('side-cart');
+            if (!sideCart.classList.contains('open')) {
+                toggleSideCart();
+            }
+        };
+
+        window.changeQty = (id, delta) => {
+            if (cart[id]) {
+                cart[id].qty += delta;
+                if (cart[id].qty <= 0) delete cart[id];
+                updateCartUI();
+            }
+        };
+
+        window.clearCart = () => {
+            cart = {};
+            updateCartUI();
+        };
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = '';
+            let total = 0;
+            let count = 0;
+            
+            Object.keys(cart).forEach(id => {
+                const item = cart[id];
+                total += item.price * item.qty;
+                count += item.qty;
+                
+                const div = document.createElement('div');
+                div.className = 'glass-card p-4 rounded-2xl flex justify-between items-center';
+                div.innerHTML = `
+                    <div>
+                        <p class="font-bold">${item.name}</p>
+                        <p class="text-indigo-400 font-black">${(item.price * item.qty).toLocaleString()} IQD</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <button onclick="changeQty('${id}', -1)" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-red-500/20 text-red-400 transition">-</button>
+                        <span class="font-black w-8 text-center">${item.qty}</span>
+                        <button onclick="changeQty('${id}', 1)" class="w-10 h-10 rounded-xl bg-white/10 hover:bg-green-500/20 text-green-400 transition">+</button>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            
+            document.getElementById('cart-total').textContent = total.toLocaleString() + ' IQD';
+            document.getElementById('side-cart-count').textContent = count;
+            document.querySelector('.cart-toggle').style.display = count > 0 ? 'block' : 'none';
+            
+            localStorage.setItem("promenu_cart", JSON.stringify(cart));
+        }
+
+        window.toggleSideCart = () => {
+            document.getElementById('side-cart').classList.toggle('open');
+            document.querySelector('.cart-overlay').classList.toggle('open');
+        };
+
+        // Order Functions
+        window.submitOrder = async () => {
+            if (Object.keys(cart).length === 0) return;
+            
+            const items = Object.keys(cart).map(id => ({
+                id, name: cart[id].name, qty: cart[id].qty, price: cart[id].price
+            }));
+            
+            const orderData = {
+                items,
+                table: currentTable || "takeaway",
+                total: items.reduce((s, i) => s + (i.price * i.qty), 0),
+                status: "Pending",
+                createdAt: new Date(),
+                date: new Date().toLocaleDateString(),
+                time: new Date().toLocaleTimeString()
+            };
+            
+            try {
+                const orderRef = await addDoc(collection(db, "orders"), orderData);
+                currentOrderId = orderRef.id;
+                
+                // Show timeline
+                document.getElementById('order-timeline').classList.remove('hidden');
+                document.getElementById('order-status-msg').classList.remove('hidden');
+                document.getElementById('order-status-msg').textContent = t('order_received');
+                document.getElementById('checkout-btn').classList.add('hidden');
+                
+                // Listen to status changes
+                listenToOrderStatus(currentOrderId);
+                
+                // Clear cart
+                cart = {};
+                updateCartUI();
+                
+            } catch (error) {
+                console.error("Error submitting order:", error);
+                alert("Error submitting order");
+            }
+        };
+
+        function listenToOrderStatus(orderId) {
+            onSnapshot(doc(db, "orders", orderId), (doc) => {
+                if (doc.exists()) {
+                    const status = doc.data().status;
+                    updateStatusTimeline(status);
+                }
+            });
+        }
+
+        function updateStatusTimeline(status) {
+            const steps = ['Pending', 'Preparing', 'Ready', 'Done'];
+            const currentIndex = steps.indexOf(status);
+            
+            const statusText = {
+                'Pending': t('pending') + '...',
+                'Preparing': t('preparing') + '...',
+                'Ready': t('ready') + '!',
+                'Done': t('done')
+            };
+            
+            document.getElementById('order-status-msg').textContent = statusText[status];
+            
+            steps.forEach((step, index) => {
+                const dot = document.getElementById(`dot-${step.toLowerCase()}`);
+                const line = document.getElementById(`line-${step.toLowerCase()}`);
+                
+                if (dot) {
+                    dot.className = 'status-dot';
+                    if (index < currentIndex) dot.classList.add('completed');
+                    else if (index === currentIndex) dot.classList.add('active');
+                }
+                
+                if (line) {
+                    line.querySelector('.status-line-fill').style.width = index < currentIndex ? '100%' : '0%';
+                }
+            });
+        }
+
+        // Table Management
+        function initTables() {
+            tables = [];
+            for (let i = 1; i <= 20; i++) {
+                tables.push({
+                    id: i,
+                    status: Math.random() > 0.7 ? 'occupied' : Math.random() > 0.9 ? 'reserved' : 'available'
+                });
+            }
+        }
+
+        window.showTableManager = () => {
+            const grid = document.getElementById('tables-grid');
+            grid.innerHTML = '';
+            
+            tables.forEach(table => {
+                const card = document.createElement('div');
+                card.className = `table-card ${table.status}`;
+                card.onclick = () => selectTable(table.id);
+                card.innerHTML = `
+                    <i class="fas fa-chair text-2xl mb-2"></i>
+                    <span class="font-bold">#${table.id}</span>
+                    <span class="text-xs mt-1">${t(table.status)}</span>
+                `;
+                grid.appendChild(card);
+            });
+            
+            document.getElementById('table-modal').classList.remove('hidden');
+        };
+
+        window.closeTableManager = () => {
+            document.getElementById('table-modal').classList.add('hidden');
+        };
+
+        window.selectTable = (tableId) => {
+            currentTable = tableId.toString();
+            localStorage.setItem("promenu_table", currentTable);
+            
+            document.getElementById('table-banner').classList.remove('hidden');
+            document.getElementById('current-table-num').textContent = currentTable;
+            generateQRCode(currentTable);
+            
+            closeTableManager();
+            
+            // Reload page with new table
+            window.location.href = `${window.location.pathname}?table=${tableId}`;
+        };
+
+        // Admin Check
+        window.checkAdminAccess = () => {
+            // Admin panel is now separate file
+            return true;
+        };
+
+        // Initialize on load
+        init();
+    </script>
+</body>
+</html>'''

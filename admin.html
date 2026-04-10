@@ -1,0 +1,869 @@
+﻿<html lang="ku" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ProMenu Admin - پانێڵی بەڕێوەبەر</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #ec4899;
+            --accent: #f59e0b;
+            --dark: #0f172a;
+            --darker: #020617;
+            --card: #1e293b;
+        }
+        
+        * { 
+            font-family: 'Vazirmatn', 'Poppins', sans-serif;
+            box-sizing: border-box;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--darker) 0%, var(--dark) 50%, #1a1f3a 100%);
+            color: white;
+            min-height: 100vh;
+        }
+        
+        .glass-panel {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(236, 72, 153, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        
+        .gradient-text {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 50%, #f59e0b 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 2rem;
+            border-bottom: 4px solid;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover { transform: translateY(-5px); }
+        .stat-card.revenue { border-color: #10b981; }
+        .stat-card.orders { border-color: #6366f1; }
+        .stat-card.items { border-color: #ec4899; }
+        
+        .order-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 1.5rem;
+            border-right: 4px solid;
+            transition: all 0.3s;
+        }
+        
+        .order-card:hover { transform: translateX(-5px); }
+        .order-card.pending { border-color: #f59e0b; }
+        .order-card.preparing { border-color: #3b82f6; }
+        .order-card.ready { border-color: #10b981; }
+        .order-card.done { border-color: #6b7280; }
+        
+        .status-badge {
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: bold;
+        }
+        
+        .status-pending { background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); }
+        .status-preparing { background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); }
+        .status-ready { background: linear-gradient(135deg, #10b981 0%, #059669 100%); }
+        .status-done { background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); }
+        
+        .orders-scroll {
+            max-height: calc(100vh - 400px);
+            overflow-y: auto;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(99, 102, 241, 0.5) transparent;
+        }
+        
+        .orders-scroll::-webkit-scrollbar { width: 6px; }
+        .orders-scroll::-webkit-scrollbar-thumb {
+            background: rgba(99, 102, 241, 0.5);
+            border-radius: 3px;
+        }
+        
+        .action-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 0.75rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .action-btn.edit {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+        
+        .action-btn.delete {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+        }
+        
+        .action-btn:hover { transform: scale(1.1); }
+        
+        .report-card {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 1.5rem;
+            padding: 1.5rem;
+            border-left: 4px solid;
+        }
+        
+        .report-card.daily { border-color: #6366f1; }
+        .report-card.weekly { border-color: #ec4899; }
+        .report-card.monthly { border-color: #f59e0b; }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            padding: 1rem 1.5rem;
+            border-radius: 1rem;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.4);
+            z-index: 9999;
+            transform: translateX(400px);
+            transition: transform 0.3s;
+        }
+        
+        .notification.show { transform: translateX(0); }
+        
+        .notification-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ef4444;
+            color: white;
+            font-size: 0.75rem;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+        
+        .tab-btn {
+            padding: 0.75rem 1.5rem;
+            border-radius: 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: all 0.3s;
+        }
+        
+        .tab-btn.active, .tab-btn:hover {
+            background: linear-gradient(135deg, #6366f1 0%, #ec4899 100%);
+            border-color: transparent;
+        }
+        
+        .food-item {
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
+            border-radius: 1rem;
+            padding: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Login Screen -->
+    <div id="login-screen" class="fixed inset-0 bg-gradient-to-br from-slate-900 to-slate-800 z-50 flex items-center justify-center p-4">
+        <div class="glass-panel w-full max-w-md p-8 rounded-[2.5rem]">
+            <div class="text-center mb-8">
+                <div class="w-20 h-20 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-2xl mx-auto mb-4 flex items-center justify-center text-3xl font-black">
+                    P
+                </div>
+                <h1 class="text-3xl font-black gradient-text mb-2">ProMenu Admin</h1>
+                <p class="text-white/60">پانێڵی بەڕێوەبەر</p>
+            </div>
+            <form id="login-form" class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold mb-2 text-white/80">ئیمەیڵ / Email</label>
+                    <input type="email" id="login-email" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-indigo-500 focus:outline-none transition" placeholder="admin@example.com" required>
+                </div>
+                <div>
+                    <label class="block text-sm font-bold mb-2 text-white/80">وشەی نهێنی / Password</label>
+                    <input type="password" id="login-password" class="w-full bg-white/5 border border-white/10 rounded-xl p-4 text-white focus:border-indigo-500 focus:outline-none transition" placeholder="••••••••" required>
+                </div>
+                <div class="flex items-center gap-2">
+                    <input type="checkbox" id="remember-me" class="w-4 h-4 rounded border-white/20 bg-white/5 text-indigo-500">
+                    <label for="remember-me" class="text-sm text-white/70">بیرمبهێنەرەوە / Remember me</label>
+                </div>
+                <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white py-4 rounded-xl font-black text-lg hover:shadow-xl transition transform hover:scale-[1.02]">
+                    <i class="fas fa-sign-in-alt mr-2"></i> چوونەژوورەوە / Login
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Admin Panel -->
+    <div id="admin-panel" class="hidden">
+        <!-- Header -->
+        <nav class="glass-panel sticky top-0 z-40 p-4 border-b border-white/10">
+            <div class="max-w-7xl mx-auto flex justify-between items-center">
+                <div class="flex items-center gap-4">
+                    <div class="w-12 h-12 bg-gradient-to-br from-indigo-500 to-pink-500 rounded-xl flex items-center justify-center text-white font-black text-xl">
+                        P
+                    </div>
+                    <div>
+                        <h1 class="text-2xl font-black gradient-text">ProMenu Admin</h1>
+                        <p class="text-xs text-white/60" id="admin-email">admin@example.com</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="showNotifications()" class="relative p-3 glass-panel rounded-xl hover:bg-white/10 transition">
+                        <i class="fas fa-bell text-xl"></i>
+                        <span id="notif-count" class="notification-badge hidden">0</span>
+                    </button>
+                    <button onclick="logout()" class="px-4 py-2 bg-red-500/20 text-red-400 rounded-xl font-bold hover:bg-red-500/30 transition">
+                        <i class="fas fa-sign-out-alt mr-2"></i> دەرچوون
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <main class="p-4 max-w-7xl mx-auto">
+            <!-- Stats Cards -->
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                <div class="stat-card revenue p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-sm text-white/60 mb-1">داهاتی ئەمڕۆ / Today's Revenue</p>
+                            <h3 id="stat-revenue" class="text-3xl font-black text-green-400">0 IQD</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-green-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-dollar-sign text-green-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-green-400"><i class="fas fa-arrow-up mr-1"></i> +12% ئەمڕۆ</p>
+                </div>
+                
+                <div class="stat-card orders p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-sm text-white/60 mb-1">ئۆردەری چالاک / Active Orders</p>
+                            <h3 id="stat-active" class="text-3xl font-black text-indigo-400">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-indigo-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-fire text-indigo-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-indigo-400"><i class="fas fa-clock mr-1"></i> چاوەڕوانی</p>
+                </div>
+                
+                <div class="stat-card items p-6">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-sm text-white/60 mb-1">کۆی فرۆشراو / Total Sold</p>
+                            <h3 id="stat-sold" class="text-3xl font-black text-pink-400">0</h3>
+                        </div>
+                        <div class="w-12 h-12 bg-pink-500/20 rounded-xl flex items-center justify-center">
+                            <i class="fas fa-utensils text-pink-400 text-xl"></i>
+                        </div>
+                    </div>
+                    <p class="text-xs text-pink-400"><i class="fas fa-chart-line mr-1"></i> بەردەوامە</p>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="flex gap-2 mb-6 overflow-x-auto">
+                <button class="tab-btn active" onclick="switchTab('orders')">
+                    <i class="fas fa-receipt mr-2"></i> داواکاریەکان
+                </button>
+                <button class="tab-btn" onclick="switchTab('menu')">
+                    <i class="fas fa-utensils mr-2"></i> لیستی خواردن
+                </button>
+                <button class="tab-btn" onclick="switchTab('categories')">
+                    <i class="fas fa-folder mr-2"></i> هاوپۆلەکان
+                </button>
+                <button class="tab-btn" onclick="switchTab('reports')">
+                    <i class="fas fa-chart-bar mr-2"></i> ڕاپۆرت
+                </button>
+                <button class="tab-btn" onclick="switchTab('tables')">
+                    <i class="fas fa-chair mr-2"></i> میزەکان
+                </button>
+            </div>
+
+            <!-- Orders Tab -->
+            <div id="tab-orders" class="tab-content">
+                <div class="glass-panel rounded-[2rem] p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold">داواکارییە نوێیەکان</h2>
+                        <div class="flex gap-2">
+                            <button onclick="filterOrders('all')" class="px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 transition text-sm">هەموو</button>
+                            <button onclick="filterOrders('pending')" class="px-4 py-2 rounded-xl bg-amber-500/20 text-amber-400 hover:bg-amber-500/30 transition text-sm">چاوەڕوانی</button>
+                            <button onclick="filterOrders('preparing')" class="px-4 py-2 rounded-xl bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition text-sm">ئامادەکردن</button>
+                            <button onclick="filterOrders('ready')" class="px-4 py-2 rounded-xl bg-green-500/20 text-green-400 hover:bg-green-500/30 transition text-sm">ئامادەیە</button>
+                        </div>
+                    </div>
+                    <div id="orders-list" class="orders-scroll space-y-4 pr-2">
+                        <!-- Orders loaded here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu Tab -->
+            <div id="tab-menu" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <!-- Add Food Form -->
+                    <div class="glass-panel rounded-[2rem] p-6">
+                        <h2 class="text-2xl font-bold mb-6">زیادکردنی خواردن</h2>
+                        <form id="add-food-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold mb-2">ناوی خواردن (کوردی)</label>
+                                <input type="text" id="food-name-ku" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-indigo-500 focus:outline-none" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2">ناوی خواردن (عەرەبی)</label>
+                                <input type="text" id="food-name-ar" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2">ناوی خواردن (ئینگلیزی)</label>
+                                <input type="text" id="food-name-en" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div class="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">نرخ (IQD)</label>
+                                    <input type="number" id="food-price" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-indigo-500 focus:outline-none" required>
+                                </div>
+                                <div>
+                                    <label class="block text-sm font-bold mb-2">هاوپۆل</label>
+                                    <select id="food-category" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-indigo-500 focus:outline-none" required>
+                                        <option value="">هەڵبژێرە</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2">لینکی وێنە</label>
+                                <input type="url" id="food-image" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-indigo-500 focus:outline-none" placeholder="https://...">
+                            </div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white py-4 rounded-xl font-black hover:shadow-xl transition">
+                                <i class="fas fa-plus mr-2"></i> زیادکردن
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Food List -->
+                    <div class="glass-panel rounded-[2rem] p-6">
+                        <h2 class="text-2xl font-bold mb-6">لیستی خواردنەکان</h2>
+                        <div id="food-list" class="orders-scroll">
+                            <!-- Food items loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Categories Tab -->
+            <div id="tab-categories" class="tab-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-panel rounded-[2rem] p-6">
+                        <h2 class="text-2xl font-bold mb-6">هاوپۆلی نوێ</h2>
+                        <form id="add-category-form" class="space-y-4">
+                            <div>
+                                <label class="block text-sm font-bold mb-2">ناو (کوردی)</label>
+                                <input type="text" id="cat-name-ku" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-indigo-500 focus:outline-none" required>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2">ناو (عەرەبی)</label>
+                                <input type="text" id="cat-name-ar" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-bold mb-2">ناو (ئینگلیزی)</label>
+                                <input type="text" id="cat-name-en" class="w-full bg-white/5 border border-white/10 rounded-xl p-3 text-white focus:border-indigo-500 focus:outline-none">
+                            </div>
+                            <button type="submit" class="w-full bg-gradient-to-r from-indigo-500 to-pink-500 text-white py-4 rounded-xl font-black hover:shadow-xl transition">
+                                <i class="fas fa-folder-plus mr-2"></i> زیادکردنی هاوپۆل
+                            </button>
+                        </form>
+                    </div>
+                    <div class="glass-panel rounded-[2rem] p-6">
+                        <h2 class="text-2xl font-bold mb-6">هاوپۆلەکان</h2>
+                        <div id="category-list" class="space-y-3">
+                            <!-- Categories loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Reports Tab -->
+            <div id="tab-reports" class="tab-content hidden">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="report-card daily">
+                        <h3 class="text-lg font-bold mb-2 text-indigo-400">ڕاپۆری ڕۆژانە</h3>
+                        <p class="text-3xl font-black mb-1" id="report-daily-revenue">0 IQD</p>
+                        <p class="text-sm text-white/60">ئەمڕۆ: <span id="report-daily-date">--</span></p>
+                    </div>
+                    <div class="report-card weekly">
+                        <h3 class="text-lg font-bold mb-2 text-pink-400">ڕاپۆری هەفتانە</h3>
+                        <p class="text-3xl font-black mb-1" id="report-weekly-revenue">0 IQD</p>
+                        <p class="text-sm text-white/60">ئەم هەفتەیە</p>
+                    </div>
+                    <div class="report-card monthly">
+                        <h3 class="text-lg font-bold mb-2 text-amber-400">ڕاپۆری مانگانە</h3>
+                        <p class="text-3xl font-black mb-1" id="report-monthly-revenue">0 IQD</p>
+                        <p class="text-sm text-white/60">ئەم مانگە</p>
+                    </div>
+                </div>
+                <div class="glass-panel rounded-[2rem] p-6">
+                    <canvas id="revenue-chart" height="100"></canvas>
+                </div>
+            </div>
+
+            <!-- Tables Tab -->
+            <div id="tab-tables" class="tab-content hidden">
+                <div class="glass-panel rounded-[2rem] p-6">
+                    <h2 class="text-2xl font-bold mb-6">بەڕێوەبردنی میزەکان</h2>
+                    <div id="admin-tables-grid" class="grid grid-cols-4 md:grid-cols-5 lg:grid-cols-8 gap-4">
+                        <!-- Tables managed here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification">
+        <div class="flex items-center gap-3">
+            <i class="fas fa-bell text-xl"></i>
+            <div>
+                <p class="font-bold">ئۆردەری نوێ!</p>
+                <p class="text-sm opacity-80" id="notif-text">مێز #5 داواکاری تازەی هەیە</p>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, doc, updateDoc, deleteDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut, setPersistence, browserLocalPersistence } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyCqLDfIknIeZNa04kAtievxXspRfRReXuk",
+            authDomain: "resturant-79473.firebaseapp.com",
+            projectId: "resturant-79473",
+            storageBucket: "resturant-79473.firebasestorage.app",
+            messagingSenderId: "680937011860",
+            appId: "1:680937011860:web:4ef965b4ac24b0e3461281"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+
+        // Enable persistence
+        setPersistence(auth, browserLocalPersistence);
+
+        let currentTab = 'orders';
+        let ordersFilter = 'all';
+        let chartInstance = null;
+
+        // Check auth state
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                document.getElementById('login-screen').classList.add('hidden');
+                document.getElementById('admin-panel').classList.remove('hidden');
+                document.getElementById('admin-email').textContent = user.email;
+                initAdmin();
+            } else {
+                document.getElementById('login-screen').classList.remove('hidden');
+                document.getElementById('admin-panel').classList.add('hidden');
+            }
+        });
+
+        // Login
+        document.getElementById('login-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value;
+            const password = document.getElementById('login-password').value;
+            
+            try {
+                await signInWithEmailAndPassword(auth, email, password);
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'هەڵە!',
+                    text: 'ئیمەیڵ یان وشەی نهێنی هەڵەیە',
+                    background: '#1e293b',
+                    color: '#fff'
+                });
+            }
+        });
+
+        // Logout
+        window.logout = () => {
+            signOut(auth);
+        };
+
+        // Initialize Admin
+        function initAdmin() {
+            loadOrders();
+            loadCategories();
+            loadFoodList();
+            loadReports();
+            loadTables();
+            setupRealtimeListeners();
+        }
+
+        // Setup realtime listeners for notifications
+        function setupRealtimeListeners() {
+            const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+            onSnapshot(q, (snapshot) => {
+                let newOrders = 0;
+                snapshot.docChanges().forEach((change) => {
+                    if (change.type === "added") {
+                        const order = change.doc.data();
+                        if (order.status === "Pending") {
+                            newOrders++;
+                            showNotification(`مێز #${order.table} - داواکاری نوێ`);
+                        }
+                    }
+                });
+                
+                if (newOrders > 0) {
+                    updateNotificationBadge(newOrders);
+                    playNotificationSound();
+                }
+                
+                updateStats(snapshot);
+            });
+        }
+
+        function showNotification(text) {
+            const notif = document.getElementById('notification');
+            document.getElementById('notif-text').textContent = text;
+            notif.classList.add('show');
+            setTimeout(() => notif.classList.remove('show'), 5000);
+        }
+
+        function updateNotificationBadge(count) {
+            const badge = document.getElementById('notif-count');
+            badge.textContent = count;
+            badge.classList.remove('hidden');
+        }
+
+        function playNotificationSound() {
+            const audio = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+            audio.play().catch(e => console.log('Audio play failed'));
+        }
+
+        // Load Orders
+        function loadOrders() {
+            const q = query(collection(db, "orders"), orderBy("createdAt", "desc"));
+            
+            onSnapshot(q, (snapshot) => {
+                const container = document.getElementById('orders-list');
+                container.innerHTML = '';
+                
+                const grouped = { Pending: [], Preparing: [], Ready: [], Done: [] };
+                
+                snapshot.forEach(doc => {
+                    const order = doc.data();
+                    if (ordersFilter === 'all' || order.status.toLowerCase() === ordersFilter) {
+                        grouped[order.status].push({ id: doc.id, ...order });
+                    }
+                });
+                
+                ['Pending', 'Preparing', 'Ready', 'Done'].forEach(status => {
+                    if (grouped[status].length > 0) {
+                        const header = document.createElement('div');
+                        header.className = 'text-sm font-bold mt-4 mb-2 opacity-70';
+                        header.innerHTML = `${status} (${grouped[status].length})`;
+                        container.appendChild(header);
+                        
+                        grouped[status].forEach(order => {
+                            const card = createOrderCard(order);
+                            container.appendChild(card);
+                        });
+                    }
+                });
+            });
+        }
+
+        function createOrderCard(order) {
+            const div = document.createElement('div');
+            div.className = `order-card ${order.status.toLowerCase()} p-4`;
+            div.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h4 class="font-black text-lg">مێز #${order.table}</h4>
+                        <p class="text-xs opacity-50">${order.time || '--:--'} | ${order.date || '--/--/--'}</p>
+                    </div>
+                    <span class="status-badge status-${order.status.toLowerCase()}">${order.status}</span>
+                </div>
+                <div class="text-sm mb-3 bg-white/5 p-3 rounded-xl">
+                    ${order.items.map(i => `${i.qty}x ${i.name}`).join(', ')}
+                </div>
+                <div class="flex justify-between items-center pt-3 border-t border-white/10">
+                    <span class="font-black text-green-400">${order.total.toLocaleString()} IQD</span>
+                    <select onchange="updateOrderStatus('${order.id}', this.value)" class="bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-indigo-500">
+                        <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                        <option value="Preparing" ${order.status === 'Preparing' ? 'selected' : ''}>Preparing</option>
+                        <option value="Ready" ${order.status === 'Ready' ? 'selected' : ''}>Ready</option>
+                        <option value="Done" ${order.status === 'Done' ? 'selected' : ''}>Done</option>
+                    </select>
+                </div>
+            `;
+            return div;
+        }
+
+        window.updateOrderStatus = async (orderId, newStatus) => {
+            await updateDoc(doc(db, "orders", orderId), { status: newStatus });
+        };
+
+        window.filterOrders = (filter) => {
+            ordersFilter = filter;
+            loadOrders();
+        };
+
+        // Load Categories
+        async function loadCategories() {
+            const select = document.getElementById('food-category');
+            const list = document.getElementById('category-list');
+            
+            onSnapshot(collection(db, "categories"), (snapshot) => {
+                select.innerHTML = '<option value="">هەڵبژێرە</option>';
+                list.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const cat = doc.data();
+                    const option = document.createElement('option');
+                    option.value = cat.id;
+                    option.textContent = cat.name.ku || cat.name;
+                    select.appendChild(option);
+                    
+                    const item = document.createElement('div');
+                    item.className = 'flex justify-between items-center bg-white/5 p-3 rounded-xl';
+                    item.innerHTML = `
+                        <span class="font-bold">${cat.name.ku || cat.name}</span>
+                        <button onclick="deleteCategory('${doc.id}')" class="action-btn delete"><i class="fas fa-trash"></i></button>
+                    `;
+                    list.appendChild(item);
+                });
+            });
+        }
+
+        window.deleteCategory = async (id) => {
+            if (confirm('دڵنیای لە سڕینەوە؟')) {
+                await deleteDoc(doc(db, "categories", id));
+            }
+        };
+
+        // Add Category
+        document.getElementById('add-category-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                id: Date.now().toString(),
+                name: {
+                    ku: document.getElementById('cat-name-ku').value,
+                    ar: document.getElementById('cat-name-ar').value,
+                    en: document.getElementById('cat-name-en').value
+                }
+            };
+            await addDoc(collection(db, "categories"), data);
+            e.target.reset();
+            Swal.fire({ icon: 'success', title: 'زیادکرا!', background: '#1e293b', color: '#fff' });
+        });
+
+        // Load Food List
+        function loadFoodList() {
+            onSnapshot(collection(db, "menu"), (snapshot) => {
+                const list = document.getElementById('food-list');
+                list.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const food = doc.data();
+                    const item = document.createElement('div');
+                    item.className = 'food-item';
+                    item.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <img src="${food.image || 'https://via.placeholder.com/50'}" class="w-12 h-12 rounded-xl object-cover">
+                            <div>
+                                <p class="font-bold">${food.name?.ku || food.name}</p>
+                                <p class="text-sm text-indigo-400">${food.price.toLocaleString()} IQD</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="editFood('${doc.id}')" class="action-btn edit"><i class="fas fa-edit"></i></button>
+                            <button onclick="deleteFood('${doc.id}')" class="action-btn delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    `;
+                    list.appendChild(item);
+                });
+            });
+        }
+
+        window.deleteFood = async (id) => {
+            if (confirm('دڵنیای لە سڕینەوەی ئەم خواردنە؟')) {
+                await deleteDoc(doc(db, "menu", id));
+            }
+        };
+
+        window.editFood = async (id) => {
+            const foodDoc = await getDocs(query(collection(db, "menu"), where("__name__", "==", id)));
+            // Implementation for edit modal
+            Swal.fire({
+                title: 'دەستکاریکردن',
+                text: 'ئەم تایبەتمەندیە لە وەشانی داهاتوودا زیاد دەکرێت',
+                icon: 'info',
+                background: '#1e293b',
+                color: '#fff'
+            });
+        };
+
+        // Add Food
+        document.getElementById('add-food-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const data = {
+                name: {
+                    ku: document.getElementById('food-name-ku').value,
+                    ar: document.getElementById('food-name-ar').value,
+                    en: document.getElementById('food-name-en').value
+                },
+                price: Number(document.getElementById('food-price').value),
+                category: document.getElementById('food-category').value,
+                image: document.getElementById('food-image').value || 'https://via.placeholder.com/300',
+                ordersCount: 0,
+                createdAt: new Date()
+            };
+            await addDoc(collection(db, "menu"), data);
+            e.target.reset();
+            Swal.fire({ icon: 'success', title: 'زیادکرا!', background: '#1e293b', color: '#fff' });
+        });
+
+        // Load Reports
+        async function loadReports() {
+            const today = new Date().toLocaleDateString();
+            document.getElementById('report-daily-date').textContent = today;
+            
+            // Calculate revenues
+            const orders = await getDocs(collection(db, "orders"));
+            let daily = 0, weekly = 0, monthly = 0;
+            
+            orders.forEach(doc => {
+                const order = doc.data();
+                if (order.status === "Done") {
+                    daily += order.total || 0;
+                    weekly += order.total || 0;
+                    monthly += order.total || 0;
+                }
+            });
+            
+            document.getElementById('report-daily-revenue').textContent = daily.toLocaleString() + ' IQD';
+            document.getElementById('report-weekly-revenue').textContent = weekly.toLocaleString() + ' IQD';
+            document.getElementById('report-monthly-revenue').textContent = monthly.toLocaleString() + ' IQD';
+            
+            // Chart
+            const ctx = document.getElementById('revenue-chart').getContext('2d');
+            if (chartInstance) chartInstance.destroy();
+            
+            chartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['شەممە', 'یەکشەممە', 'دووشەممە', 'سێشەممە', 'چوارشەممە', 'پێنجشەممە', 'هەینی'],
+                    datasets: [{
+                        label: 'داهات (IQD)',
+                        data: [daily * 0.8, daily * 0.9, daily, daily * 1.1, daily * 0.95, daily * 1.2, daily],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: 'rgba(255,255,255,0.7)' } },
+                        x: { grid: { display: false }, ticks: { color: 'rgba(255,255,255,0.7)' } }
+                    }
+                }
+            });
+        }
+
+        // Load Tables
+        function loadTables() {
+            const grid = document.getElementById('admin-tables-grid');
+            grid.innerHTML = '';
+            
+            for (let i = 1; i <= 20; i++) {
+                const table = document.createElement('div');
+                table.className = 'glass-panel p-4 rounded-2xl text-center cursor-pointer hover:bg-white/10 transition';
+                table.innerHTML = `
+                    <i class="fas fa-chair text-2xl mb-2 text-indigo-400"></i>
+                    <p class="font-bold">میز #${i}</p>
+                    <select onchange="updateTableStatus(${i}, this.value)" class="w-full mt-2 bg-white/5 border border-white/10 rounded-lg px-2 py-1 text-xs">
+                        <option value="available">بەردەست</option>
+                        <option value="occupied">داگیراو</option>
+                        <option value="reserved">پارێزراو</option>
+                    </select>
+                `;
+                grid.appendChild(table);
+            }
+        }
+
+        window.updateTableStatus = (tableId, status) => {
+            // Update table status in database
+            console.log(`Table ${tableId} status: ${status}`);
+        };
+
+        // Update Stats
+        function updateStats(snapshot) {
+            let revenue = 0, active = 0, sold = 0;
+            
+            snapshot.forEach(doc => {
+                const order = doc.data();
+                if (order.status === "Done") revenue += order.total || 0;
+                if (order.status !== "Done") active++;
+                if (order.items) {
+                    order.items.forEach(item => sold += item.qty || 0);
+                }
+            });
+            
+            document.getElementById('stat-revenue').textContent = revenue.toLocaleString() + ' IQD';
+            document.getElementById('stat-active').textContent = active;
+            document.getElementById('stat-sold').textContent = sold;
+        }
+
+        // Tab Switching
+        window.switchTab = (tab) => {
+            currentTab = tab;
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.add('hidden'));
+            document.getElementById(`tab-${tab}`).classList.remove('hidden');
+        };
+
+        window.showNotifications = () => {
+            Swal.fire({
+                title: 'ئاگادارکردنەوەکان',
+                text: 'تایبەتمەندی لە وەشانی داهاتوودا',
+                icon: 'info',
+                background: '#1e293b',
+                color: '#fff'
+            });
+        };
+    </script>
+</body>
+</html>'''
